@@ -148,8 +148,6 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
     def button2Click(self):
         i = 0
         layerlist = []
-		root = QgsProject.instance().layerTreeRoot()
-        group1 = root.addGroup("dtcloud")
         while self.model.item(i):
             if self.model.item(i).checkState():
                 shpname = self.model.item(i).text()
@@ -163,11 +161,8 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                     print("Layer failed to load!")
                 else:
                     layerlist.append(rlayer)
-					group1.insertChildNode(1, QgsLayerTreeLayer(rlayer)
-                    QgsMapLayerRegistry.instance().addMapLayers(rlayer)
-                    QgsProject.instance().addMapLayer(rlayer)
-            i += 1        
-
+            i += 1
+        QgsProject.instance().addMapLayers(layerlist)
         self.close()
 
     def button3Click(self):

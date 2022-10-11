@@ -29,6 +29,7 @@ from qgis.PyQt import QtWidgets
 from PyQt5.QtGui import ( QStandardItem, QStandardItemModel)
 from PyQt5.Qt import QDesktopServices, QUrl, QMessageBox
 from qgis.core import (
+  QgsLayerTreeLayer,
   QgsApplication,
   QgsDataSourceUri,
   QgsCategorizedSymbolRenderer,
@@ -148,6 +149,8 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
     def button2Click(self):
         i = 0
         layerlist = []
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup("dtcloud")
         while self.model.item(i):
             if self.model.item(i).checkState():
                 shpname = self.model.item(i).text()
@@ -162,7 +165,9 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     layerlist.append(rlayer)
             i += 1
-        QgsProject.instance().addMapLayers(layerlist)
+        for k in range(len(layerlist)):
+            QgsProject.instance().addMapLayer(layerlist[k], False)
+            group.addLayer(layerlist[k])
         self.close()
 
     def button3Click(self):
