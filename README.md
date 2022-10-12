@@ -1,7 +1,9 @@
 # qgis-dtcloud-plugin
 > 테스트용키 : 0638dfcec364ab9a1762043e
 
-<img src="./sc001.png" width="403px" height="342px" />
-<img src="./sc002.png" width="1280px" height="640px" />
+![sc1]
+![sc2]
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[sc1]: /images/sc001.png
+[sc2]: /images/sc002.png
