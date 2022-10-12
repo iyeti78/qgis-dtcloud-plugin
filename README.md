@@ -3,3 +3,5 @@
 
 <img src="./sc001.png" width="403px" height="342px" />
 <img src="./sc002.png" width="1280px" height="640px" />
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
