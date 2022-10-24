@@ -2,7 +2,7 @@
 name=dtcloud
 qgisMinimumVersion=3.16.0
 description=QGIS plugin for Seoul-City
-version=0.1
+version=0.3
 
 # tags are comma separated with spaces allowed
 tags=wms,gis,openlayers,smap
