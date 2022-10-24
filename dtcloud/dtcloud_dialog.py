@@ -182,7 +182,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             QgsSettings().setValue("dtcloud/key", key)
         else:
             self.model.clear()
-            QtWidgets.QMessageBox.information(self, "error code: "+self.jsonObject['status'], self.jsonObject['message'])
+            QtWidgets.QMessageBox.information(self, self.jsonObject['status'], self.jsonObject['message'])
 
     def button4Click(self):
         key = self.lineEdit.text()
@@ -200,6 +200,9 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.model.appendRow(item)
             self.listView.setModel(self.model)
             QgsSettings().setValue("dtcloud/key", key)
+        else:
+            self.model.clear()
+            QtWidgets.QMessageBox.information(self, self.jsonObject['status'], self.jsonObject['message'])
 
     def button5Click(self):
         key = self.lineEdit.text()
@@ -217,3 +220,6 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.model.appendRow(item)
             self.listView.setModel(self.model)
             QgsSettings().setValue("dtcloud/key", key)
+        else:
+            self.model.clear()
+            QtWidgets.QMessageBox.information(self, self.jsonObject['status'], self.jsonObject['message'])
