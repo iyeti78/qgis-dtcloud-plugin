@@ -132,7 +132,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.lineEdit.setText(key)
             self.showList()
         else:
-            QtWidgets.QMessageBox.information(self, "error", "invalid key")
+            QtWidgets.QMessageBox.information(self, "error code: "+self.jsonObject['status'], self.jsonObject['message'])
 
     def showList(self):
         self.model.clear()        
