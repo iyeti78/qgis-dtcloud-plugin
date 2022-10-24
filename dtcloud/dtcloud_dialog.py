@@ -182,7 +182,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             QgsSettings().setValue("dtcloud/key", key)
         else:
             self.model.clear()
-            QtWidgets.QMessageBox.information(self, "error", "invalid key")
+            QtWidgets.QMessageBox.information(self, "error code: "+self.jsonObject['status'], self.jsonObject['message'])
 
     def button4Click(self):
         key = self.lineEdit.text()
