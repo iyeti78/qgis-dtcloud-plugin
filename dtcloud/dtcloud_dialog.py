@@ -124,7 +124,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButton_4.clicked.connect(self.button4Click)
         self.pushButton_5.clicked.connect(self.button5Click)
         key = QgsSettings().value("dtcloud/key", "test")
-        data = urllib.request.urlopen("http://218.235.89.19:8787/plugin/getLayerInfo.do?apiKey="+key).read()
+        data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
         self.jsonObject = json.loads(data);
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
@@ -172,7 +172,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def button3Click(self):
         key = self.lineEdit.text()
-        data = urllib.request.urlopen("http://218.235.89.19:8787/plugin/getLayerInfo.do?apiKey="+key).read()
+        data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
         self.jsonObject = json.loads(data);
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
@@ -186,7 +186,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def button4Click(self):
         key = self.lineEdit.text()
-        data = urllib.request.urlopen("http://218.235.89.19:8787/plugin/getLayerInfo.do?apiKey="+key).read()
+        data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
         self.jsonObject = json.loads(data);
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
@@ -206,7 +206,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def button5Click(self):
         key = self.lineEdit.text()
-        data = urllib.request.urlopen("http://218.235.89.19:8787/plugin/getLayerInfo.do?apiKey="+key).read()
+        data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
         self.jsonObject = json.loads(data);
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
