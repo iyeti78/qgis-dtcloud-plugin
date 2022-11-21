@@ -1,5 +1,5 @@
 [general]
-name=dtcloud
+name=openlab
 qgisMinimumVersion=3.16.0
 description=QGIS plugin for Seoul-City
 version=0.1
@@ -19,8 +19,8 @@ experimental=False
 deprecated=False
 
 # Author contact information
-author=egis
-email=iyeti@egiskorea.com
+author=newlayer
+email=iyeti78@newlayer.kr
 
 
 # Uncomment the following line and add your changelog entries:

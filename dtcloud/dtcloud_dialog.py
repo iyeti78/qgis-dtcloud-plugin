@@ -143,14 +143,14 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.listView.setModel(self.model)
 
     def button1Click(self):
-        url1 = QUrl('https://dtwincloud.com')
+        url1 = QUrl('https://openlab.eseoul.go.kr')
         QDesktopServices.openUrl(url1)
 
     def button2Click(self):
         i = 0
         layerlist = []
         root = QgsProject.instance().layerTreeRoot()
-        group = root.addGroup("dtcloud")
+        group = root.addGroup("openlab")
         while self.model.item(i):
             if self.model.item(i).checkState():
                 shpname = self.model.item(i).text()

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>dtcloud</string>
+   <string>openlab</string>
   </property>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
@@ -83,7 +83,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>DTCLOUD</string>
+     <string>Go Openlab</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
