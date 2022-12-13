@@ -2,16 +2,46 @@
 <ui version="4.0">
  <class>dtcloudDialogBase</class>
  <widget class="QDialog" name="dtcloudDialogBase">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>309</height>
+    <width>400</width>
+    <height>400</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>400</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>openlab</string>
+   <string>S-MAP(오픈랩)</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
@@ -31,7 +61,7 @@
     <rect>
      <x>60</x>
      <y>21</y>
-     <width>251</width>
+     <width>321</width>
      <height>20</height>
     </rect>
    </property>
@@ -40,7 +70,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>152</y>
      <width>381</width>
      <height>231</height>
     </rect>
@@ -49,7 +79,7 @@
     <bool>true</bool>
    </property>
    <property name="title">
-    <string>WMS Layer List</string>
+    <string>레이어리스트(서버)</string>
    </property>
    <property name="flat">
     <bool>false</bool>
@@ -83,7 +113,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Go Openlab</string>
+     <string>오픈랩 활용갤러리</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -96,55 +126,169 @@
      </rect>
     </property>
     <property name="text">
-     <string>레이어 불러오기</string>
+     <string>QGIS에 레이어 추가하기</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_7">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>296</x>
+      <y>23</y>
+      <width>71</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>모드변경</string>
+    </property>
+   </widget>
+   <zorder>pushButton_7</zorder>
+   <zorder>listView</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>pushButton_2</zorder>
   </widget>
   <widget class="QPushButton" name="pushButton_3">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>20</y>
-     <width>61</width>
+     <x>100</x>
+     <y>50</y>
+     <width>81</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>GET</string>
+    <string>사용자레이어</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="pushButton_8">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>190</x>
      <y>50</y>
-     <width>61</width>
+     <width>51</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>전체선택</string>
+    <string>배경1</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_5">
+  <widget class="QPushButton" name="pushButton_9">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>250</x>
      <y>50</y>
-     <width>61</width>
+     <width>51</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>전체해제</string>
+    <string>배경2</string>
    </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_10">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>공개레이어</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>150</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>전체</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>381</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>브이월드 배경</string>
+   </property>
+   <widget class="QPushButton" name="pushButton_15">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>20</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>회색</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_13">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>스트리트맵</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_11">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>위성영상</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_14">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>20</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>하이브리드</string>
+    </property>
+   </widget>
   </widget>
   <zorder>groupBox</zorder>
   <zorder>label_2</zorder>
   <zorder>lineEdit</zorder>
   <zorder>pushButton_3</zorder>
-  <zorder>pushButton_4</zorder>
-  <zorder>pushButton_5</zorder>
+  <zorder>pushButton_8</zorder>
+  <zorder>pushButton_9</zorder>
+  <zorder>pushButton_10</zorder>
+  <zorder>checkBox</zorder>
+  <zorder>groupBox_2</zorder>
  </widget>
  <resources/>
  <connections/>

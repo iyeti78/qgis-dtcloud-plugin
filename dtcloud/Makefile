@@ -3,10 +3,10 @@
 #
 # dtcloud
 #							 -------------------
-#		begin				: 2022-07-12
+#		begin				: 2022-12-12
 #		git sha				: $Format:%H$
-#		copyright			: (C) 2022 by egis
-#		email				: iyeti@egiskorea.com
+#		copyright			: (C) 2022 by newlayer
+#		email				: iyeti78@newlayer.kr
 # ***************************************************************************/
 #
 #/***************************************************************************
@@ -26,7 +26,7 @@
 #Add iso code for any locales you want to support here (space separated)
 # default is no locales
 # LOCALES = af
-LOCALES =
+LOCALES = 
 
 # If locales are enabled, set the name of the lrelease binary on your system. If
 # you have trouble compiling the translations, you may have to specify the full path to
@@ -40,7 +40,7 @@ SOURCES = \
 	__init__.py \
 	dtcloud.py dtcloud_dialog.py
 
-PLUGINNAME = dtcloud
+PLUGINNAME = SMAP(OpenLab)
 
 PY_FILES = \
 	__init__.py \

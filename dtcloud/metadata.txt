@@ -1,8 +1,8 @@
 [general]
-name=openlab
+name=S-MAP(OpenLab)
 qgisMinimumVersion=3.16.0
-description=QGIS plugin for Seoul-City
-version=0.1
+description=QGIS plugin for S-MAP(OpenLab)
+version=0.4
 
 # tags are comma separated with spaces allowed
 tags=wms,gis,openlayers,smap
@@ -27,3 +27,9 @@ email=iyeti78@newlayer.kr
 changelog=
     0.1.0
         - First version
+    0.2.0
+        - Changed main UI
+    0.3.0
+        - Added public layers
+    0.4.0
+        - Added background layers of vworld
