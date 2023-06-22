@@ -61,7 +61,8 @@ from qgis.core import (
   QgsSpatialIndex,
   QgsVectorLayerUtils,
   QgsProcessingUtils,
-  QgsCoordinateReferenceSystem
+  QgsCoordinateReferenceSystem,
+  QgsCubicRasterResampler
 )
 import zipfile
 import json,urllib.request
@@ -130,7 +131,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButton_3.clicked.connect(self.button3Click)
         self.pushButton_7.clicked.connect(self.button7Click)
         self.pushButton_8.clicked.connect(self.button8Click)
-        self.pushButton_9.clicked.connect(self.button9Click)
+
         self.pushButton_10.clicked.connect(self.button10Click)    #주제도
         self.pushButton_11.clicked.connect(self.button11Click)
         self.pushButton_13.clicked.connect(self.button13Click)
@@ -147,6 +148,8 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.jsonObject['status'] == "200":
             self.jsonObject = self.jsonObject['layers']
             self.lineEdit.setText(key)
+        elif self.jsonObject['status'] == "202":
+            QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
             QtWidgets.QMessageBox.information(self, "error code: "+self.jsonObject['status'], self.jsonObject['message'])
         self.button10Click()
@@ -170,9 +173,10 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.mode == 2:
             while self.model.item(i):
                 if self.model.item(i).checkState():
-                    shpname = self.model.item(i).text().split('|')
+                    shpname = self.model.item(i).text().split('(')
+                    shpname1 = shpname[1].split(')')[0]
                     layername = self.model.item(i).text()
-                    urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/seoul_smaps/wms?version=1.1.0&format=image/png&styles=&crs=EPSG:4326&layers='+shpname[1]
+                    urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/seoul_smaps/wms?version=1.1.0&format=image/png&styles=&crs=EPSG:4326&layers='+shpname1
 #                    print(shpname[1], urlWithParams)
                     rlayer = QgsRasterLayer(urlWithParams, shpname[0], 'wms')
                     QgsProject.instance().addMapLayer(rlayer, True)
@@ -259,7 +263,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             QtWidgets.QMessageBox.information(self, "infomation", "선택된 레이어가 없습니다.")
         else:
             QtWidgets.QMessageBox.information(self, "infomation", "등록완료")
-    #개인레이어
+    #사용자레이어
     def button3Click(self):
         self.checkBox.setCheckState(0)
         if self.mode == 1:
@@ -274,6 +278,8 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.lineEdit.setText(key)
             self.showList()
             QgsSettings().setValue("dtcloud/key", key)
+        elif self.jsonObject['status'] == "202":
+            QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
             self.model.clear()
             QtWidgets.QMessageBox.information(self, self.jsonObject['status'], self.jsonObject['message'])
@@ -294,14 +300,13 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.showList()
     #배경1
     def button8Click(self):
-        QtWidgets.QMessageBox.information(self, "테스트", "배경지도1를 가져옵니다.")
-        rlayer = QgsRasterLayer("crs=EPSG:4326&featureCount=2&format=image/jpeg&layers=iyeti78:yeudo_25cm_test&styles=raster&tileMatrixSet=EPSG:4326&url=https://openlab-2d.eseoul.go.kr/gwc/service/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities%26layer%3Diyeti78%3Ayeudo_25cm_test","seoul_test", "wms")
+        QtWidgets.QMessageBox.information(self, "알림", "2020년도 영상을 가져옵니다.")
+        rlayer = QgsRasterLayer("crs=EPSG:4326&featureCount=2&format=image/jpeg&layers=openlab:image_seoul_2020_25cm_4326&styles=raster&tileMatrixSet=EPSG:4326&url=http://49.247.33.82:8080/geoserver/gwc/service/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities%26layer%3Dopenlab%3Aimage_seoul_2020_25cm_4326","seoul_2020", "wms")
+        resampleFilter = rlayer.resampleFilter()
+        resampleFilter.setZoomedInResampler(QgsCubicRasterResampler())
+        resampleFilter.setZoomedOutResampler(QgsCubicRasterResampler())
         QgsProject.instance().addMapLayer(rlayer, True)
-    #배경2
-    def button9Click(self):
-        QtWidgets.QMessageBox.information(self, "테스트", "배경지도2를 가져옵니다.")
-        rlayer = QgsRasterLayer("crs=EPSG:4326&featureCount=2&format=image/jpeg&layers=test:image_seoul_2020_25cm_4326&styles=raster&tileMatrixSet=EPSG:4326&url=https://openlab-2d.eseoul.go.kr/gwc/service/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities%26layer%3Dtest%3Aimage_seoul_2020_25cm_4326","seoul_2020", "wms")
-        QgsProject.instance().addMapLayer(rlayer, True)
+
     #공개레이어
     def button10Click(self):
         self.checkBox.setCheckState(0)
@@ -353,7 +358,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.model.clear()
         layers = json.loads(str2)
         for layer in layers:
-            item = QStandardItem("["+layer['cate']+"]"+layer['name']+"|"+layer['shp'])
+            item = QStandardItem("["+layer['cate']+"]"+layer['name']+"("+layer['shp']+")")
             item.setCheckable(True)
             self.model.appendRow(item)
         self.listView.setModel(self.model)
@@ -378,11 +383,14 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         QgsProject.instance().addMapLayer(rlayer, True)
     def stateChanged(self):
         i = 0
+        j = 0
         if self.checkBox.isChecked():
             while self.model.item(i):
                 self.model.item(i).setCheckState(2)
                 i += 1
         else:
-            while self.model.item(i):
-                self.model.item(i).setCheckState(0)
-                i += 1
+            while self.model.item(j):
+                self.model.item(j).setCheckState(0)
+                j += 1
+        if i > 5:
+            QtWidgets.QMessageBox.information(self, "안내", "너무많은 레이어를 동시에 추가하면 속도가 느려질 수 있습니다. \n5개단위로 추가하시는 것을 권장립니다.")

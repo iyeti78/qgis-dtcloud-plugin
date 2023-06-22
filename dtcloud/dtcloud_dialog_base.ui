@@ -46,22 +46,22 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>21</y>
-     <width>31</width>
+     <x>30</x>
+     <y>20</y>
+     <width>61</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>KEY</string>
+    <string>사용자 키</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>100</x>
      <y>21</y>
-     <width>321</width>
+     <width>261</width>
      <height>20</height>
     </rect>
    </property>
@@ -70,16 +70,16 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>152</y>
+     <y>92</y>
      <width>381</width>
-     <height>231</height>
+     <height>291</height>
     </rect>
    </property>
    <property name="autoFillBackground">
     <bool>true</bool>
    </property>
    <property name="title">
-    <string>레이어리스트(서버)</string>
+    <string>레이어 목록</string>
    </property>
    <property name="flat">
     <bool>false</bool>
@@ -90,7 +90,7 @@
       <x>10</x>
       <y>20</y>
       <width>361</width>
-      <height>161</height>
+      <height>221</height>
      </rect>
     </property>
     <property name="alternatingRowColors">
@@ -107,26 +107,26 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>190</y>
+      <y>250</y>
       <width>171</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>오픈랩 활용갤러리</string>
+     <string>오픈랩 누리집</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>190</y>
+      <y>250</y>
       <width>181</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>QGIS에 레이어 추가하기</string>
+     <string>선택한 레이어 추가하기</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_7">
@@ -145,6 +145,76 @@
      <string>모드변경</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_11">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>위성영상</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_13">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>30</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>스트리트맵</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_14">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>30</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>하이브리드</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_15">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>30</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>회색</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>361</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>브이월드 배경</string>
+    </property>
+   </widget>
+   <zorder>groupBox_2</zorder>
+   <zorder>pushButton_15</zorder>
+   <zorder>pushButton_14</zorder>
+   <zorder>pushButton_13</zorder>
+   <zorder>pushButton_11</zorder>
    <zorder>pushButton_7</zorder>
    <zorder>listView</zorder>
    <zorder>pushButton</zorder>
@@ -168,33 +238,20 @@
     <rect>
      <x>190</x>
      <y>50</y>
-     <width>51</width>
+     <width>81</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>배경1</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_9">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>50</y>
-     <width>51</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>배경2</string>
+    <string>2020년 영상</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_10">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>50</y>
-     <width>81</width>
+     <width>75</width>
      <height>23</height>
     </rect>
    </property>
@@ -206,8 +263,8 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>150</y>
-     <width>81</width>
+     <y>90</y>
+     <width>51</width>
      <height>20</height>
     </rect>
    </property>
@@ -215,80 +272,13 @@
     <string>전체</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>90</y>
-     <width>381</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>브이월드 배경</string>
-   </property>
-   <widget class="QPushButton" name="pushButton_15">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>20</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>회색</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_13">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>20</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>스트리트맵</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_11">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>위성영상</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_14">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>하이브리드</string>
-    </property>
-   </widget>
-  </widget>
   <zorder>groupBox</zorder>
   <zorder>label_2</zorder>
   <zorder>lineEdit</zorder>
   <zorder>pushButton_3</zorder>
   <zorder>pushButton_8</zorder>
-  <zorder>pushButton_9</zorder>
   <zorder>pushButton_10</zorder>
   <zorder>checkBox</zorder>
-  <zorder>groupBox_2</zorder>
  </widget>
  <resources/>
  <connections/>

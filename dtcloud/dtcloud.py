@@ -8,8 +8,8 @@
                               -------------------
         begin                : 2022-07-12
         git sha              : $Format:%H$
-        copyright            : (C) 2022 by egis
-        email                : iyeti@egiskorea.com
+        copyright            : (C) 2022 by newlayer
+        email                : iyeti78@newlayer.kr
  ***************************************************************************/
 
 /***************************************************************************
@@ -112,7 +112,7 @@ class dtcloud:
             ':/plugins/dtcloud/icon.png',
             text=self.tr(u'&S-MAP(오픈랩)'),
             callback=self.run,
-            parent=self.iface)
+            parent=self.iface.mainWindow())
 
         # will be set False in run()
         self.first_start = True
