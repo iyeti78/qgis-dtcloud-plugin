@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QMenu
 
 
 # Initialize Qt resources from file resources.py
@@ -61,7 +61,6 @@ class dtcloud:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&S-MAP(오픈랩)')
-
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
@@ -98,7 +97,7 @@ class dtcloud:
             # Adds plugin icon to Plugins toolbar
             self.iface.addToolBarIcon(action)
 
-        if add_to_menu:
+        if add_to_menu:            
             self.iface.addPluginToMenu(self.menu, action)
 
 
@@ -109,7 +108,7 @@ class dtcloud:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         self.add_action(
-            ':/plugins/dtcloud/icon.png',
+            self.plugin_dir+'/icon.png',
             text=self.tr(u'&S-MAP(오픈랩)'),
             callback=self.run,
             parent=self.iface.mainWindow())

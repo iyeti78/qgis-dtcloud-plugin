@@ -272,6 +272,19 @@
     <string>전체</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton_4">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>50</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>업로드레이어</string>
+   </property>
+  </widget>
   <zorder>groupBox</zorder>
   <zorder>label_2</zorder>
   <zorder>lineEdit</zorder>
@@ -279,6 +292,7 @@
   <zorder>pushButton_8</zorder>
   <zorder>pushButton_10</zorder>
   <zorder>checkBox</zorder>
+  <zorder>pushButton_4</zorder>
  </widget>
  <resources/>
  <connections/>

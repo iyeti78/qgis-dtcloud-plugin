@@ -28,8 +28,11 @@ import socket
 import requests
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
-from PyQt5.QtGui import ( QStandardItem, QStandardItemModel)
-from PyQt5.Qt import QDesktopServices, QUrl, QMessageBox
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.utils import iface
 from qgis.core import (
   QgsLayerTreeLayer,
   QgsApplication,
@@ -47,6 +50,7 @@ from qgis.core import (
   QgsGeometry,
   QgsGraduatedSymbolRenderer,
   QgsMarkerSymbol,
+  QgsMapLayerType,
   QgsMessageLog,
   QgsProcessing,
   QgsRectangle,
@@ -60,9 +64,10 @@ from qgis.core import (
   QgsWkbTypes,
   QgsSpatialIndex,
   QgsVectorLayerUtils,
+  QgsVectorDataProvider,
   QgsProcessingUtils,
   QgsCoordinateReferenceSystem,
-  QgsCubicRasterResampler
+  QgsBilinearRasterResampler
 )
 import zipfile
 import json,urllib.request
@@ -77,58 +82,13 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         super(dtcloudDialog, self).__init__(parent)
         self.setupUi(self)
 
-        str1 = '''
-{
-  "layers": [
-    {
-      "DATAID": 8182,
-      "SHP_TABLE_NAME": "user_shp_newlayer3165_1660700908865",
-      "SHP_DATA_STORE_NAME": "dtw_user_geo_newlayer3165",
-      "SHP_LAYER_FULLNAME": "newlayer3165:user_shp_newlayer3165_1660700908865",
-      "SHAPE_TYPE": "multipolygon",
-      "WORKSPACE": "newlayer3165",
-      "COORD_EPSG": "EPSG:4326",
-      "DATA_NAME": "a"
-    },
-    {
-      "DATAID": 8189,
-      "SHP_TABLE_NAME": "user_shp_newlayer3165_1660709985865",
-      "SHP_DATA_STORE_NAME": "dtw_user_geo_newlayer3165",
-      "SHP_LAYER_FULLNAME": "newlayer3165:user_shp_newlayer3165_1660709985865",
-      "SHAPE_TYPE": "multipolygon",
-      "WORKSPACE": "newlayer3165",
-      "COORD_EPSG": "EPSG:4326",
-      "DATA_NAME": "b"
-    },
-    {
-      "DATAID": 8190,
-      "SHP_TABLE_NAME": "user_shp_newlayer3165_1660710063821",
-      "SHP_DATA_STORE_NAME": "dtw_user_geo_newlayer3165",
-      "SHP_LAYER_FULLNAME": "newlayer3165:user_shp_newlayer3165_1660710063821",
-      "SHAPE_TYPE": "multipolygon",
-      "WORKSPACE": "newlayer3165",
-      "COORD_EPSG": "EPSG:4326",
-      "DATA_NAME": "c"
-    }   
-  ],
-  "url": "https://geo.dtwincloud.com/newlayer3165/wms?",
-  "status": "200"
-}
-'''
-#        self.comboBox.clear()   
-        
-
-        
-        
-
-#        for layer in self.jsonObject:
-#            self.comboBox.addItem(layer['name'])
         self.model = QStandardItemModel()
         self.model.clear()
         self.mode = 0
         self.pushButton.clicked.connect(self.button1Click)
         self.pushButton_2.clicked.connect(self.button2Click)
         self.pushButton_3.clicked.connect(self.button3Click)
+        self.pushButton_4.clicked.connect(self.button4Click)
         self.pushButton_7.clicked.connect(self.button7Click)
         self.pushButton_8.clicked.connect(self.button8Click)
 
@@ -143,6 +103,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             QtWidgets.QMessageBox.information(self, "알림", "인터넷 연결이 필요합니다.")
         key = QgsSettings().value("dtcloud/key", "test")
         data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
+        print(data)
         self.jsonObject = json.loads(data)
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
@@ -151,8 +112,10 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         elif self.jsonObject['status'] == "202":
             QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
-            QtWidgets.QMessageBox.information(self, "error code: "+self.jsonObject['status'], self.jsonObject['message'])
+            print(self.jsonObject['status'], self.jsonObject['message'])
+
         self.button10Click()
+
     def showList(self):
         self.model.clear()        
         for layer in self.jsonObject:
@@ -171,43 +134,76 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         i = 0
         isEmpty = True
         if self.mode == 2:
+            print('공개레이어')
+            layerlist = []
             while self.model.item(i):
                 if self.model.item(i).checkState():
                     shpname = self.model.item(i).text().split('(')
-                    shpname1 = shpname[1].split(')')[0]
+                    shpname1 = shpname[1].split(',')[0]
+                    epsg = shpname[1].split(',')[1].split(')')[0]
                     layername = self.model.item(i).text()
-                    urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/seoul_smaps/wms?version=1.1.0&format=image/png&styles=&crs=EPSG:4326&layers='+shpname1
-#                    print(shpname[1], urlWithParams)
-                    rlayer = QgsRasterLayer(urlWithParams, shpname[0], 'wms')
-                    QgsProject.instance().addMapLayer(rlayer, True)
-                    isEmpty = False
+                    uri = QgsDataSourceUri()
+#                    if 'cbnd' in shpname1:
+#                        urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/smap_theme/wms?version=1.1.0&format=image/png&styles=&crs='+epsg+'&layers='+shpname1
+#                        layer = QgsRasterLayer(urlWithParams, shpname[0], 'wms')
+#                    else:
+                    uri.setParam('version', '2.0.0')
+                    uri.setParam('typename', 'smap_theme:'+shpname1)
+                    uri.setParam('url', 'https://openlab-2d.eseoul.go.kr/smap_theme/wfs')
+                    layer = QgsVectorLayer(uri.uri(), shpname[0], 'wfs')
+                    if not layer.isValid():
+                        print("Layer failed to load!", layername, shpname)
+                    else:
+                        if(layer.featureCount()>100000):
+                            print(layer.name()+": 객체가 10만개가 이상인 레이어는 WMS로 제공됩니다.")
+                            #QtWidgets.QMessageBox.information(self, "알림", "객체가 10만개가 이상인 레이어는 WMS로 제공됩니다.")
+                            urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/smap_theme/wms?version=1.1.0&format=image/png&styles=&crs='+epsg+'&layers='+shpname1
+                            layer = QgsRasterLayer(urlWithParams, shpname[0], 'wms')
+                    layerlist.append(layer)
                 i += 1
+
+            for k in range(len(layerlist)):
+                QgsProject.instance().addMapLayer(layerlist[k], True)
+                isEmpty = False
             self.close()
-        if self.mode == 0:
+
+        elif self.mode == 0:
+            print('사용자레이어')
             layerlist = []
-#            root = QgsProject.instance().layerTreeRoot()
-#            group = root.addGroup("openlab")
             while self.model.item(i):
                 if self.model.item(i).checkState():
                     shpname = self.model.item(i).text()
                     layername = self.model.item(i).text()
+                    workspace = ''
+                    epsg = "EPSG:4326"
                     for layer in reversed(self.jsonObject):
-                        if layer['DATA_NAME'] == shpname:
+                       if layer['DATA_NAME'] == shpname:
                             shpname = layer['SHP_TABLE_NAME']
-                    urlWithParams = 'url='+self.url+'version=1.1.0&format=image/png&layers='+shpname+'&styles=&crs=EPSG:4326'
-#                    print(shpname, urlWithParams)
-                    rlayer = QgsRasterLayer(urlWithParams, layername, 'wms')
-                    if not rlayer.isValid():
+                            workspace = layer['WORKSPACE']
+                            epsg = layer['COORD_EPSG']
+#                   urlWithParams = 'url='+self.url+'version=1.1.0&format=image/png&layers='+shpname+'&styles=&crs=EPSG:4326'
+                    uri = QgsDataSourceUri()
+                    uri.setParam('version', '2.0.0')
+                    uri.setParam('typename', workspace+":"+shpname)
+                    uri.setParam('url', 'https://openlab-2d.eseoul.go.kr/'+workspace+'/wfs')
+                    layer = QgsVectorLayer(uri.uri(), layername, 'wfs')
+                    if not layer.isValid():
                         print("Layer failed to load!", layername, shpname)
                     else:
-                        layerlist.append(rlayer)
+                        if(layer.featureCount()>100000):
+                            print(layer.name()+": 객체가 10만개 이상인 레이어는 WMS로 제공됩니다.")
+                            #QtWidgets.QMessageBox.information(self, "알림", "객체가 10만개가 이상인 레이어는 WMS로 제공됩니다.")
+                            urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/smap_theme/wms?version=1.1.0&format=image/png&styles=&crs='+epsg+'&layers='+shpname
+                            layer = QgsRasterLayer(urlWithParams, shpname, 'wms')
+                    layerlist.append(layer)
                 i += 1
+
             for k in range(len(layerlist)):
                 QgsProject.instance().addMapLayer(layerlist[k], True)
                 isEmpty = False
-#                group.addLayer(layerlist[k])
             self.close()
-        if self.mode == 1:
+
+        elif self.mode == 1:
             layerlist = []
             temp_folder = QgsProcessingUtils.tempFolder();
             os.chdir(temp_folder)
@@ -259,12 +255,28 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 files.close()
                 isEmpty = False
 #                print(res)
+        elif self.mode == 4:
+            isEmpty = True
+            i = 0
+            while self.model.item(i):
+                print(self.model.item(i).text())
+                if self.model.item(i).checkState():
+                    layername = self.model.item(i).text()
+                    for layer in QgsProject.instance().mapLayers().values():
+                        if isinstance(layer, QgsVectorLayer):                            
+                            if layer.name() == layername:
+                                isEmpty = False
+                                self.ulayer = layer
+                                self.upload_layer()
+                i += 1
+
         if isEmpty:                
-            QtWidgets.QMessageBox.information(self, "infomation", "선택된 레이어가 없습니다.")
-        else:
-            QtWidgets.QMessageBox.information(self, "infomation", "등록완료")
-    #사용자레이어
+            QtWidgets.QMessageBox.information(self, "Infomation", "선택된 레이어가 없거나 오류가 있습니다.")
+
+
+    #사용자레이어 가져오기
     def button3Click(self):
+        self.pushButton_2.setText("선택된 레이어 추가하기")
         self.checkBox.setCheckState(0)
         if self.mode == 1:
             self.button7Click()
@@ -282,7 +294,6 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
             self.model.clear()
-            QtWidgets.QMessageBox.information(self, self.jsonObject['status'], self.jsonObject['message'])
 
     #모드변환(다운로드/업로드)
     def button7Click(self):
@@ -300,68 +311,56 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.showList()
     #배경1
     def button8Click(self):
-        QtWidgets.QMessageBox.information(self, "알림", "2020년도 영상을 가져옵니다.")
-        rlayer = QgsRasterLayer("crs=EPSG:4326&featureCount=2&format=image/jpeg&layers=openlab:image_seoul_2020_25cm_4326&styles=raster&tileMatrixSet=EPSG:4326&url=http://49.247.33.82:8080/geoserver/gwc/service/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities%26layer%3Dopenlab%3Aimage_seoul_2020_25cm_4326","seoul_2020", "wms")
-        resampleFilter = rlayer.resampleFilter()
-        resampleFilter.setZoomedInResampler(QgsCubicRasterResampler())
-        resampleFilter.setZoomedOutResampler(QgsCubicRasterResampler())
-        QgsProject.instance().addMapLayer(rlayer, True)
+        layers = QgsProject.instance().mapLayers()
+        layerExist = False
+        for layer in layers.values():
+            print(layer.name())
+            if layer.name() == "seoul_2020":
+                QtWidgets.QMessageBox.information(self, "알림", "이미 레이어가 추가되었습니다.")
+                layerExist = True
+                break
+
+        if layerExist == False:
+            urlWithParams = 'type=xyz&url=http://49.247.33.82/2020/%7Bz%7D/%7Bx%7D/%7By%7D.jpg&zmax=20&zmin=0'
+            rlayer = QgsRasterLayer(urlWithParams, 'seoul_2020', 'wms')  
+            resampleFilter = rlayer.resampleFilter()
+            resampleFilter.setZoomedInResampler(QgsBilinearRasterResampler())
+            resampleFilter.setZoomedOutResampler(QgsBilinearRasterResampler())
+            QgsProject.instance().addMapLayer(rlayer)
 
     #공개레이어
     def button10Click(self):
+        self.pushButton_2.setText("선택된 레이어 추가하기")
         self.checkBox.setCheckState(0)
         self.mode = 2
-        str2 = '''
-[
-{"cate":"교통","name":"통행불편지역","shp":"passweak_area_4326"},
-{"cate":"교통","name":"주차장","shp":"lt_c_ui902_4326"},
-{"cate":"행정","name":"건물외곽선","shp":"seoul_b_line"},
-{"cate":"행정","name":"도로명건물","shp":"tl_spbd_buld_4326"},
-{"cate":"행정","name":"전통사찰/전통사찰보존","shp":"lt_c_uo501_4326"},
-{"cate":"행정","name":"서울시조례/도시계획","shp":"lt_c_za001_4326"},
-{"cate":"행정","name":"지역/수도권정비권역","shp":"lt_c_ub101_4326"},
-{"cate":"행정","name":"건축/용도지역","shp":"lt_c_ud210_4326"},
-{"cate":"행정","name":"재개발구역","shp":"lt_c_ud501_4326"},
-{"cate":"행정","name":"전통시장상점가육성/시장정비구역","shp":"lt_c_ub901_4326"},
-{"cate":"행정","name":"도시개발/도시개발구역","shp":"lt_c_ud901_4326"},
-{"cate":"행정","name":"학교환경위생정화구역","shp":"lt_c_uo101_4326"},
-{"cate":"행정","name":"전원개발용도구역","shp":"lt_c_ul201_4326"},
-{"cate":"행정","name":"군사기지/군사시설보호","shp":"lt_c_un501_4326"},
-{"cate":"행정","name":"토지피복도","shp":"seoul_area_4326"},
-{"cate":"행정","name":"국가기초구역","shp":"basic_area_4326"},
-{"cate":"행정","name":"연속지적","shp":"lp_pa_cbnd_4326"},
-{"cate":"문화","name":"드론홍보영상","shp":"dronevideo_poi_4326"},
-{"cate":"문화","name":"문화재영상","shp":"culturalheritagevideo_poi_4326"},
-{"cate":"문화","name":"전지적서울시점","shp":"seoul_viewpoint_4326"},
-{"cate":"문화","name":"서울관광명소","shp":"seoul100_4326"},
-{"cate":"문화","name":"문화재/문화재보호","shp":"lt_c_uo301_4326"},
-{"cate":"환경","name":"자연재해/재해위험지구","shp":"lt_c_up201_4326"},
-{"cate":"환경","name":"한강수계/수변구역","shp":"lt_c_um730_4326"},
-{"cate":"환경","name":"하천/용도구역","shp":"lt_c_uj201_4326"},
-{"cate":"환경","name":"산지관리/보존보전산지","shp":"lt_c_uf801_4326"},
-{"cate":"국토계획","name":"공공문화체육시설","shp":"lt_c_uq164_4326"},
-{"cate":"국토계획","name":"도시관리계획입안","shp":"lt_c_uq102_4326"},
-{"cate":"국토계획","name":"도시지역","shp":"lt_c_uq111_4326"},
-{"cate":"국토계획","name":"경관지구","shp":"lt_c_uq121_4326"},
-{"cate":"국토계획","name":"미관지구","shp":"lt_c_uq122_4326"},
-{"cate":"국토계획","name":"방화지구","shp":"lt_c_uq124_4326"},
-{"cate":"국토계획","name":"개발진흥지구","shp":"lt_c_uq129_4326"},
-{"cate":"국토계획","name":"구역","shp":"lt_c_uq141_4326"},
-{"cate":"국토계획","name":"교통시설","shp":"lt_c_uq161_4326"},
-{"cate":"국토계획","name":"공간시설","shp":"lt_c_uq162_4326"},
-{"cate":"국토계획","name":"유통및공급시설","shp":"lt_c_uq163_4326"},
-{"cate":"국토계획","name":"방재시설","shp":"lt_c_uq165_4326"},
-{"cate":"국토계획","name":"환경기초시설","shp":"lt_c_uq167_4326"},
-{"cate":"국토계획","name":"기타기반시설","shp":"lt_c_uq168_4326"}
-]
-'''
+        data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/themeMapList.do").read()
         self.model.clear()
-        layers = json.loads(str2)
-        for layer in layers:
-            item = QStandardItem("["+layer['cate']+"]"+layer['name']+"("+layer['shp']+")")
-            item.setCheckable(True)
-            self.model.appendRow(item)
+        self.jsonObject = json.loads(data)
+        if self.jsonObject['status'] == "200":
+            layers = self.jsonObject['layers']
+            self.url = self.jsonObject['url']    
+            for layer in layers:
+                item = QStandardItem(""+layer['DATA_NAME']+"("+layer['SHP_TABLE_NAME']+","+layer['COORD_EPSG']+")")
+                item.setCheckable(True)
+                self.model.appendRow(item)
         self.listView.setModel(self.model)
+    
+    #업로드레이어가져오기
+    def button4Click(self):
+        self.pushButton_2.setText("선택된 레이어 업로드하기")
+        self.mode = 4
+        self.model.clear()
+        layers = QgsProject.instance().mapLayers()
+
+        for layer in layers.values():
+            if layer.type() == QgsMapLayerType.VectorLayer:
+                if layer.dataProvider().name() == "ogr":
+                    item = QStandardItem(layer.name())
+                    item.setCheckable(True)
+                    self.model.appendRow(item)
+                    print(layer)
+        self.listView.setModel(self.model)
+
     #브이월드배경
     def button11Click(self):
         QtWidgets.QMessageBox.information(self, "테스트", "브이월드배경(위성)을 가져옵니다.")
@@ -394,3 +393,50 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 j += 1
         if i > 5:
             QtWidgets.QMessageBox.information(self, "안내", "너무많은 레이어를 동시에 추가하면 속도가 느려질 수 있습니다. \n5개단위로 추가하시는 것을 권장립니다.")
+
+    def upload_layer(self):
+        layer = self.ulayer
+        temp_folder = QgsProcessingUtils.tempFolder();
+        os.chdir(temp_folder)
+#        if os.path.exists(temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"):
+#            os.remove(temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip")
+        # 압축 파일 생성
+        zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
+        print(zip_file_path)
+        
+        shp_file_path = temp_folder+"/"+layer.name()+".shp"
+        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "utf-8", layer.crs(), "ESRI Shapefile")
+
+        zipf = zipfile.ZipFile(zip_file_path, 'w')
+        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
+            file_path = shp_file_path.replace('.shp', ext)
+            if os.path.exists(file_path):
+                print(file_path)
+                zipf.write(file_path, os.path.basename(file_path), compress_type=zipfile.ZIP_DEFLATED)
+        zipf.close()
+
+        url = "https://openlab.eseoul.go.kr/plugin/uploadShpFiles.do"
+        apikey = self.lineEdit.text()
+
+        files = open(zip_file_path, 'rb')
+        upload = {'file': files }
+        data = {'apikey': apikey }
+
+        res = requests.post(url, files=upload, data=data)
+        if res is not None:
+            print(res)        
+        if res.status_code == 200:
+            print('success')
+            if res.json()['result'] == 'ok':
+                print(res.json())
+                print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
+                print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
+                QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
+
+            else:
+                print('Upload failed!')
+                print(res.json())
+                QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
+        else:
+            print('Upload failed!')
+            QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
