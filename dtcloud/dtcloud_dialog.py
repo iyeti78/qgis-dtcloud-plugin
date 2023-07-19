@@ -91,7 +91,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButton_4.clicked.connect(self.button4Click)
         self.pushButton_7.clicked.connect(self.button7Click)
         self.pushButton_8.clicked.connect(self.button8Click)
-
+        self.pushButton_9.clicked.connect(self.button9Click)
         self.pushButton_10.clicked.connect(self.button10Click)    #주제도
         self.pushButton_11.clicked.connect(self.button11Click)
         self.pushButton_13.clicked.connect(self.button13Click)
@@ -154,8 +154,8 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                     if not layer.isValid():
                         print("Layer failed to load!", layername, shpname)
                     else:
-                        if(layer.featureCount()>100000):
-                            print(layer.name()+": 객체가 10만개가 이상인 레이어는 WMS로 제공됩니다.")
+                        if(layer.featureCount()>500000):
+                            print(layer.name()+": 객체수가 50만개 이상인 레이어는 WMS로 제공됩니다.")
                             #QtWidgets.QMessageBox.information(self, "알림", "객체가 10만개가 이상인 레이어는 WMS로 제공됩니다.")
                             urlWithParams = 'url=https://openlab-2d.eseoul.go.kr/smap_theme/wms?version=1.1.0&format=image/png&styles=&crs='+epsg+'&layers='+shpname1
                             layer = QgsRasterLayer(urlWithParams, shpname[0], 'wms')
@@ -309,7 +309,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.mode = 1
         else:
             self.showList()
-    #배경1
+    #배경2020
     def button8Click(self):
         layers = QgsProject.instance().mapLayers()
         layerExist = False
@@ -321,8 +321,26 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 break
 
         if layerExist == False:
-            urlWithParams = 'type=xyz&url=http://49.247.33.82/2020/%7Bz%7D/%7Bx%7D/%7By%7D.jpg&zmax=20&zmin=0'
+            urlWithParams = 'type=xyz&url=http://49.247.33.82/2020/%7Bz%7D/%7Bx%7D/%7By%7D.jpg&zmax=19&zmin=0'
             rlayer = QgsRasterLayer(urlWithParams, 'seoul_2020', 'wms')  
+            resampleFilter = rlayer.resampleFilter()
+            resampleFilter.setZoomedInResampler(QgsBilinearRasterResampler())
+            resampleFilter.setZoomedOutResampler(QgsBilinearRasterResampler())
+            QgsProject.instance().addMapLayer(rlayer)
+    #배경2022
+    def button9Click(self):
+        layers = QgsProject.instance().mapLayers()
+        layerExist = False
+        for layer in layers.values():
+            print(layer.name())
+            if layer.name() == "seoul_2022":
+                QtWidgets.QMessageBox.information(self, "알림", "이미 레이어가 추가되었습니다.")
+                layerExist = True
+                break
+
+        if layerExist == False:
+            urlWithParams = 'type=xyz&url=http://49.247.33.82/2022/%7Bz%7D/%7Bx%7D/%7By%7D.jpg&zmax=19&zmin=0'
+            rlayer = QgsRasterLayer(urlWithParams, 'seoul_2022', 'wms')  
             resampleFilter = rlayer.resampleFilter()
             resampleFilter.setZoomedInResampler(QgsBilinearRasterResampler())
             resampleFilter.setZoomedOutResampler(QgsBilinearRasterResampler())

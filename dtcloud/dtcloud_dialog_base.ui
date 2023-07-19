@@ -285,6 +285,19 @@
     <string>업로드레이어</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton_9">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>70</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>2022년 영상</string>
+   </property>
+  </widget>
   <zorder>groupBox</zorder>
   <zorder>label_2</zorder>
   <zorder>lineEdit</zorder>
@@ -293,6 +306,7 @@
   <zorder>pushButton_10</zorder>
   <zorder>checkBox</zorder>
   <zorder>pushButton_4</zorder>
+  <zorder>pushButton_9</zorder>
  </widget>
  <resources/>
  <connections/>
