@@ -217,6 +217,12 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                             if layer.name() == layername:
                                 layerlist.append(layer)
                                 tpath = temp_folder+"/"+layer.name()+".shp"
+                                pathqml = tpath.replace(".shp", ".qml")
+                                pathsld = tpath.replace(".shp", ".sld")
+                                print(pathqml)
+                                print(pathsld)
+                                layer.saveNamedStyle(pathqml)
+                                layer.saveSldStyle(pathsld)
                                 QgsVectorFileWriter.writeAsVectorFormat(layer, tpath, "EUC-KR", layer.crs(), "ESRI Shapefile")
                 i += 1
             crs = ""
@@ -243,6 +249,18 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 if file.endswith('.prj') or file.endswith('.PRJ'):
                     for l in layerlist:
                         if file == l.name() + ".prj" or file == l.name() + ".PRJ":
+                            zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
+                if file.endswith('.qml') or file.endswith('.QML'):
+                    for l in layerlist:
+                        if file == l.name() + ".qml" or file == l.name() + ".QML":
+                            zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
+                if file.endswith('.qmd') or file.endswith('.QMD'):
+                    for l in layerlist:
+                        if file == l.name() + ".qmd" or file == l.name() + ".QMD":
+                            zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
+                if file.endswith('.sld') or file.endswith('.SLD'):
+                    for l in layerlist:
+                        if file == l.name() + ".sld" or file == l.name() + ".SLD":
                             zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
             zip_file.close();
 
@@ -420,13 +438,19 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 #            os.remove(temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip")
         # 압축 파일 생성
         zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
+#        zip_file_path = zip_file_path.replace("\n", "")
         print(zip_file_path)
         
         shp_file_path = temp_folder+"/"+layer.name()+".shp"
         QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "utf-8", layer.crs(), "ESRI Shapefile")
-
+        pathqml = shp_file_path.replace(".shp", ".qml")
+        pathsld = shp_file_path.replace(".shp", ".sld")
+        print(pathqml)
+        print(pathsld)
+        layer.saveNamedStyle(pathqml)
+        layer.saveSldStyle(pathsld)
         zipf = zipfile.ZipFile(zip_file_path, 'w')
-        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
+        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg', '.qml', '.qmd', '.sld']:
             file_path = shp_file_path.replace('.shp', ext)
             if os.path.exists(file_path):
                 print(file_path)
@@ -457,4 +481,5 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
         else:
             print('Upload failed!')
+            print(res.json())
             QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
