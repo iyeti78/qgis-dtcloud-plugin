@@ -442,7 +442,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         print(zip_file_path)
         
         shp_file_path = temp_folder+"/"+layer.name()+".shp"
-        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "utf-8", layer.crs(), "ESRI Shapefile")
+        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "euc-kr", layer.crs(), "ESRI Shapefile")
         pathqml = shp_file_path.replace(".shp", ".qml")
         pathsld = shp_file_path.replace(".shp", ".sld")
         print(pathqml)
