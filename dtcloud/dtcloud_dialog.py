@@ -90,7 +90,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButton_3.clicked.connect(self.button3Click)
         self.pushButton_4.clicked.connect(self.button4Click)
         self.pushButton_7.clicked.connect(self.button7Click)
-        self.pushButton_8.clicked.connect(self.button8Click)
+#        self.pushButton_8.clicked.connect(self.button8Click)
         self.pushButton_9.clicked.connect(self.button9Click)
         self.pushButton_10.clicked.connect(self.button10Click)    #주제도
         self.pushButton_11.clicked.connect(self.button11Click)
@@ -474,12 +474,9 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                 print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
                 print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
                 QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
-
             else:
-                print('Upload failed!')
                 print(res.json())
-                QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
+                QtWidgets.QMessageBox.information(self, res.json()['result'], res.json()['message'])
         else:
-            print('Upload failed!')
             print(res.json())
-            QtWidgets.QMessageBox.information(self, "알림", "업로드 실패")
+            QtWidgets.QMessageBox.information(self, res.json()['result'], res.json()['message'])
