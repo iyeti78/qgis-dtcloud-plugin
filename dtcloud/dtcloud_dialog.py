@@ -119,7 +119,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
     def showList(self):
         self.model.clear()        
         for layer in self.jsonObject:
-            item = QStandardItem(layer['DATA_NAME'])
+            item = QStandardItem(layer['DATA_NM'])
             item.setCheckable(True)
             if len(item.text()) > 0:
                 self.model.appendRow(item)
@@ -177,10 +177,10 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                     workspace = ''
                     epsg = "EPSG:4326"
                     for layer in reversed(self.jsonObject):
-                       if layer['DATA_NAME'] == shpname:
-                            shpname = layer['SHP_TABLE_NAME']
+                       if layer['DATA_NM'] == shpname:
+                            shpname = layer['SHP_TBL_NM']
                             workspace = layer['WORKSPACE']
-                            epsg = layer['COORD_EPSG']
+                            epsg = layer['CRD_EPSG']
 #                   urlWithParams = 'url='+self.url+'version=1.1.0&format=image/png&layers='+shpname+'&styles=&crs=EPSG:4326'
                     uri = QgsDataSourceUri()
                     uri.setParam('version', '2.0.0')
