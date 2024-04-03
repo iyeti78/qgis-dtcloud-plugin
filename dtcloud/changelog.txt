@@ -9,6 +9,8 @@ changelog=
     0.8.0    - Add User's Update mode
     0.9.0    - If number of features exceeds 500k, it will be served as WMS
     0.11.0   - Added styles.sld
-    0.11.1   - Added styles.sld
+    0.11.0   - Added styles.sld
     0.11.2   - 업데이트 테스트용
     0.11.3   - 사용자 레이어 업로드 실패시 서버 메시지 출력
+    0.11.4   - 신규버전 릴리즈시 알림
+    0.11.5   - 디스플레이 배율 수정(200%까지 테스트)
