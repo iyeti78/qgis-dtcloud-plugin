@@ -32,6 +32,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.gui import QgsMessageBar
 from qgis.utils import iface
 from qgis.core import (
   QgsLayerTreeLayer,
@@ -101,25 +102,30 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
         ip = socket.gethostbyname(socket.gethostname())
         if ip == "127.0.0.1":
             QtWidgets.QMessageBox.information(self, "알림", "인터넷 연결이 필요합니다.")
-        key = QgsSettings().value("dtcloud/key", "test")
+
+        self.settings = QgsSettings("dtcloud.ini", );
+        key = self.settings.value("dtcloud/key", "test")
+
+#        key = QgsSettings().value("dtcloud/key", "test")
         data = urllib.request.urlopen("https://openlab.eseoul.go.kr/plugin/getLayerInfo.do?apiKey="+key).read()
-        print(data)
+        
         self.jsonObject = json.loads(data)
         self.url = self.jsonObject['url']
         if self.jsonObject['status'] == "200":
             self.jsonObject = self.jsonObject['layers']
-            self.lineEdit.setText(key)
-        elif self.jsonObject['status'] == "202":
+            if key != "test":
+                self.lineEdit.setText(key)
+        elif self.jsonObject['status'] == "202" and key != "test":
             QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
             print(self.jsonObject['status'], self.jsonObject['message'])
 
         self.button10Click()
-
+        self.versionCheck();
     def showList(self):
         self.model.clear()        
         for layer in self.jsonObject:
-            item = QStandardItem(layer['DATA_NM'])
+            item = QStandardItem(layer['DATA_NAME'])
             item.setCheckable(True)
             if len(item.text()) > 0:
                 self.model.appendRow(item)
@@ -177,10 +183,10 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
                     workspace = ''
                     epsg = "EPSG:4326"
                     for layer in reversed(self.jsonObject):
-                       if layer['DATA_NM'] == shpname:
-                            shpname = layer['SHP_TBL_NM']
+                       if layer['DATA_NAME'] == shpname:
+                            shpname = layer['SHP_TABLE_NAME']
                             workspace = layer['WORKSPACE']
-                            epsg = layer['CRD_EPSG']
+                            epsg = layer['COORD_EPSG']
 #                   urlWithParams = 'url='+self.url+'version=1.1.0&format=image/png&layers='+shpname+'&styles=&crs=EPSG:4326'
                     uri = QgsDataSourceUri()
                     uri.setParam('version', '2.0.0')
@@ -307,7 +313,7 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.jsonObject = self.jsonObject['layers']
             self.lineEdit.setText(key)
             self.showList()
-            QgsSettings().setValue("dtcloud/key", key)
+            self.settings.setValue("dtcloud/key", key)            
         elif self.jsonObject['status'] == "202":
             QtWidgets.QMessageBox.information(self, "알림", "사용자 키(KEY)를 입력해 주세요. \n키가 없는 사용자는 '오픈랩 누리집'에서 키를 발급 받으실 수 있습니다.")
         else:
@@ -383,6 +389,9 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
     
     #업로드레이어가져오기
     def button4Click(self):
+        key = self.lineEdit.text()
+        if key != "test":
+            self.settings.setValue("dtcloud/key", key)
         self.pushButton_2.setText("선택된 레이어 업로드하기")
         self.mode = 4
         self.model.clear()
@@ -432,51 +441,62 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def upload_layer(self):
         layer = self.ulayer
-        temp_folder = QgsProcessingUtils.tempFolder();
-        os.chdir(temp_folder)
-#        if os.path.exists(temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"):
-#            os.remove(temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip")
-        # 압축 파일 생성
-        zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
-#        zip_file_path = zip_file_path.replace("\n", "")
-        print(zip_file_path)
-        
-        shp_file_path = temp_folder+"/"+layer.name()+".shp"
-        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "euc-kr", layer.crs(), "ESRI Shapefile")
-        pathqml = shp_file_path.replace(".shp", ".qml")
-        pathsld = shp_file_path.replace(".shp", ".sld")
-        print(pathqml)
-        print(pathsld)
-        layer.saveNamedStyle(pathqml)
-        layer.saveSldStyle(pathsld)
-        zipf = zipfile.ZipFile(zip_file_path, 'w')
-        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg', '.qml', '.qmd', '.sld']:
-            file_path = shp_file_path.replace('.shp', ext)
-            if os.path.exists(file_path):
-                print(file_path)
-                zipf.write(file_path, os.path.basename(file_path), compress_type=zipfile.ZIP_DEFLATED)
-        zipf.close()
+        print(layer.name())
+#        temp_folder = QgsProcessingUtils.tempFolder();
+#        os.chdir(temp_folder)
+#
+#        # 압축 파일 생성
+#        zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
+##        zip_file_path = zip_file_path.replace("\n", "")
+#        print(zip_file_path)
+#        
+#        shp_file_path = temp_folder+"/"+layer.name()+".shp"
+#        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "euc-kr", layer.crs(), "ESRI Shapefile")
+#        pathqml = shp_file_path.replace(".shp", ".qml")
+#        pathsld = shp_file_path.replace(".shp", ".sld")
+#        print(pathqml)
+#        print(pathsld)
+#        layer.saveNamedStyle(pathqml)
+#        layer.saveSldStyle(pathsld)
+#        zipf = zipfile.ZipFile(zip_file_path, 'w')
+#        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg', '.qml', '.qmd', '.sld']:
+#            file_path = shp_file_path.replace('.shp', ext)
+#            if os.path.exists(file_path):
+#                print(file_path)
+#                zipf.write(file_path, os.path.basename(file_path), compress_type=zipfile.ZIP_DEFLATED)
+#        zipf.close()
+#
+#        url = "https://openlab.eseoul.go.kr/plugin/uploadShpFiles.do"
+#        apikey = self.lineEdit.text()
+#
+#        files = open(zip_file_path, 'rb')
+#        upload = {'file': files }
+#        data = {'apikey': apikey }
+#
+#        res = requests.post(url, files=upload, data=data)
+#        if res is not None:
+#            print(res)        
+#        if res.status_code == 200:
+#            print('success')
+#            if res.json()['result'] == 'ok':
+#                print(res.json())
+#                print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
+#                print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
+#                QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
+#
+#            else:
+#                print(res.json())
+#                QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
+#        else:
+#            print(res.json())
+#            QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
 
-        url = "https://openlab.eseoul.go.kr/plugin/uploadShpFiles.do"
-        apikey = self.lineEdit.text()
-
-        files = open(zip_file_path, 'rb')
-        upload = {'file': files }
-        data = {'apikey': apikey }
-
-        res = requests.post(url, files=upload, data=data)
-        if res is not None:
-            print(res)        
-        if res.status_code == 200:
-            print('success')
-            if res.json()['result'] == 'ok':
-                print(res.json())
-                print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
-                print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
-                QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
-            else:
-                print(res.json())
-                QtWidgets.QMessageBox.information(self, res.json()['result'], res.json()['message'])
-        else:
-            print(res.json())
-            QtWidgets.QMessageBox.information(self, res.json()['result'], res.json()['message'])
+    def versionCheck(self):
+        url = "https://plugins.qgis.org/plugins/dtcloud"
+        html = requests.get(url).text
+        index = html.index("href=\"/plugins/dtcloud/version")
+        res = html[index:index+50].split('/')
+        print(res)
+        if res[4] != "0.11.5":
+            iface.messageBar().pushMessage("안내", "S-MAP(오픈랩)새 버전이 있습니다.\n플러그인 관리 및 설치에서 새 버전으로 설치 가능합니다.", 0 , 5)
+#            QtWidgets.QMessageBox.information(self, "알림", "최신버전이 아닙니다.\n 플러그인 관리 및 설치에서 새 버전으로 업그레이드 가능합니다.")
