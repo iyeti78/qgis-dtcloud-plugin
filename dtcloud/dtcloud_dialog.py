@@ -210,11 +210,14 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
             self.close()
 
         elif self.mode == 1:
+
             layerlist = []
             temp_folder = QgsProcessingUtils.tempFolder();
+
             os.chdir(temp_folder)
             if os.path.exists(temp_folder+"/"+self.lineEdit.text()+".zip"):
                 os.remove(temp_folder+"/"+self.lineEdit.text()+".zip")
+            print(temp_folder+"/"+self.lineEdit.text()+".zip")
             while self.model.item(i):
                 if self.model.item(i).checkState():
                     layername = self.model.item(i).text()
@@ -441,55 +444,55 @@ class dtcloudDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def upload_layer(self):
         layer = self.ulayer
-        print(layer.name())
-#        temp_folder = QgsProcessingUtils.tempFolder();
-#        os.chdir(temp_folder)
-#
-#        # 압축 파일 생성
-#        zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
-##        zip_file_path = zip_file_path.replace("\n", "")
-#        print(zip_file_path)
+
+        temp_folder = QgsProcessingUtils.tempFolder();
+        os.chdir(temp_folder)
+
+        # 압축 파일 생성
+        zip_file_path = temp_folder+"/"+self.lineEdit.text()+"_"+layer.name()+".zip"
+#        zip_file_path = zip_file_path.replace("\n", "")
+        print(zip_file_path)
 #        
-#        shp_file_path = temp_folder+"/"+layer.name()+".shp"
-#        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "euc-kr", layer.crs(), "ESRI Shapefile")
-#        pathqml = shp_file_path.replace(".shp", ".qml")
-#        pathsld = shp_file_path.replace(".shp", ".sld")
-#        print(pathqml)
-#        print(pathsld)
-#        layer.saveNamedStyle(pathqml)
-#        layer.saveSldStyle(pathsld)
-#        zipf = zipfile.ZipFile(zip_file_path, 'w')
-#        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg', '.qml', '.qmd', '.sld']:
-#            file_path = shp_file_path.replace('.shp', ext)
-#            if os.path.exists(file_path):
-#                print(file_path)
-#                zipf.write(file_path, os.path.basename(file_path), compress_type=zipfile.ZIP_DEFLATED)
-#        zipf.close()
-#
-#        url = "https://openlab.eseoul.go.kr/plugin/uploadShpFiles.do"
-#        apikey = self.lineEdit.text()
-#
-#        files = open(zip_file_path, 'rb')
-#        upload = {'file': files }
-#        data = {'apikey': apikey }
-#
-#        res = requests.post(url, files=upload, data=data)
-#        if res is not None:
-#            print(res)        
-#        if res.status_code == 200:
-#            print('success')
-#            if res.json()['result'] == 'ok':
-#                print(res.json())
-#                print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
-#                print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
-#                QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
-#
-#            else:
-#                print(res.json())
-#                QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
-#        else:
-#            print(res.json())
-#            QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
+        shp_file_path = temp_folder+"/"+layer.name()+".shp"
+        QgsVectorFileWriter.writeAsVectorFormat(layer, shp_file_path, "euc-kr", layer.crs(), "ESRI Shapefile")
+        pathqml = shp_file_path.replace(".shp", ".qml")
+        pathsld = shp_file_path.replace(".shp", ".sld")
+        print(pathqml)
+        print(pathsld)
+        layer.saveNamedStyle(pathqml)
+        layer.saveSldStyle(pathsld)
+        zipf = zipfile.ZipFile(zip_file_path, 'w')
+        for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg', '.qml', '.qmd', '.sld']:
+            file_path = shp_file_path.replace('.shp', ext)
+            if os.path.exists(file_path):
+                print(file_path)
+                zipf.write(file_path, os.path.basename(file_path), compress_type=zipfile.ZIP_DEFLATED)
+        zipf.close()
+
+        url = "https://openlab.eseoul.go.kr/plugin/uploadShpFiles.do"
+        apikey = self.lineEdit.text()
+
+        files = open(zip_file_path, 'rb')
+        upload = {'file': files }
+        data = {'apikey': apikey }
+
+        res = requests.post(url, files=upload, data=data)
+        if res is not None:
+            print(res)        
+        if res.status_code == 200:
+            print('success')
+            if res.json()['result'] == 'ok':
+                print(res.json())
+                print('서울 외곽 지역의 레이어는 가시화가 되지 않을 수 있습니다.')
+                print('There is a posibility for this layer not to be shown if the internal boundary box is out of the city of Seoul.')
+                QtWidgets.QMessageBox.information(self, "알림", "업로드 성공")
+
+            else:
+                print(res.json())
+                QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
+        else:
+            print(res.json())
+            QtWidgets.QMessageBox.information(self, "알림", res.json()['message'])
 
     def versionCheck(self):
         url = "https://plugins.qgis.org/plugins/dtcloud"
