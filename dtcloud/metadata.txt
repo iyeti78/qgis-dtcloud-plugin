@@ -4,7 +4,7 @@ name=S-MAP(OpenLab)
 qgisMinimumVersion=3.16.0
 description=QGIS plugin for S-MAP(OpenLab)
 about=The spatial information disclosed in the OpenLab can be used by users in QGIS.
-version=0.11.8
+version=0.11.9
 
 tags=smap, openlab, seoul, s-map 
 
@@ -17,8 +17,8 @@ hasProcessingProvider=no
 experimental=False
 deprecated=False
 
-email=iyeti78@newlayer.kr
-author=newlayer
+email=iyeti78@egiskorea.com
+author=egis
 server=False
 
 changelog= changelog.txt
